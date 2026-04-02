@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.VendorMapper">
+
+    <insert id="save">
+        INSERT INTO vendor (name, concat_person, concat_phone, email, product_type, work_address, user_id, is_audit,
+                            status, create_time)
+        VALUES (#{name}, #{concatPerson}, #{concatPhone}, #{email}, #{productType}, #{workAddress}, #{userId},
+                #{isAudit}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE vendor
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="concatPerson != null and concatPerson != ''">
+                concat_person = #{concatPerson},
+            </if>
+            <if test="concatPhone != null and concatPhone != ''">
+                concat_phone = #{concatPhone},
+            </if>
+            <if test="workAddress != null and workAddress != ''">
+                work_address = #{workAddress},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="productType != null and productType != ''">
+                product_type = #{productType},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="isAudit != null">
+                is_audit = #{isAudit},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM vendor WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT v.*,u.user_name
+        FROM vendor v
+        LEFT JOIN user u ON u.id = v.user_id
+        <where>
+            <if test="id != null">
+                AND v.id = #{id}
+            </if>
+            <if test="userId != null">
+                AND v.user_id = #{userId}
+            </if>
+            <if test="name != null and name != ''">
+                AND v.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="isAudit != null">
+                AND v.is_audit = #{isAudit}
+            </if>
+            <if test="status != null">
+                AND v.status = #{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND v.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY v.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM vendor v
+        <where>
+            <if test="id != null">
+                AND v.id = #{id}
+            </if>
+            <if test="userId != null">
+                AND v.user_id = #{userId}
+            </if>
+            <if test="name != null and name != ''">
+                AND v.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="isAudit != null">
+                AND v.is_audit = #{isAudit}
+            </if>
+            <if test="status != null">
+                AND v.status = #{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND v.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.VendorVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="concat_person" property="concatPerson"/>
+        <result column="concat_phone" property="concatPhone"/>
+        <result column="email" property="email"/>
+        <result column="product_type" property="productType"/>
+        <result column="work_address" property="workAddress"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="is_audit" property="isAudit"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

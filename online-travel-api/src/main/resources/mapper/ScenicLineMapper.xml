@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.ScenicLineMapper">
+
+    <insert id="save">
+        INSERT INTO scenic_line (scenic_id, cover, detail, level, create_time)
+        VALUES (#{scenicId}, #{cover}, #{detail}, #{level}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE scenic_line
+        <set>
+            <if test="scenicId != null">
+                scenic_id = #{scenicId},
+            </if>
+            <if test="cover != null and cover != ''">
+                cover = #{cover},
+            </if>
+            <if test="detail != null and detail != ''">
+                detail = #{detail},
+            </if>
+            <if test="level != null">
+                level = #{level},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM scenic_line WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT sl.*,
+        s.name AS scenic_name,
+        s.cover AS scenic_cover,
+        s.address AS scenic_address
+        FROM scenic_line sl
+        LEFT JOIN scenic s ON sl.scenic_id = s.id
+        <where>
+            <if test="id != null">
+                AND sl.id = #{id}
+            </if>
+            <if test="scenicId != null">
+                AND sl.scenic_id = #{scenicId}
+            </if>
+            <if test="name != null and name != ''">
+                AND sl.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY sl.level
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM scenic_line sl
+        <where>
+            <if test="id != null">
+                AND sl.id = #{id}
+            </if>
+            <if test="scenicId != null">
+                AND sl.scenic_id = #{scenicId}
+            </if>
+            <if test="name != null and name != ''">
+                AND sl.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.ScenicLineVO">
+        <id column="id" property="id"/>
+        <result column="scenic_id" property="scenicId"/>
+        <result column="cover" property="cover"/>
+        <result column="detail" property="detail"/>
+        <result column="level" property="level"/>
+        <result column="scenic_name" property="scenicName"/>
+        <result column="scenic_cover" property="scenicCover"/>
+        <result column="scenic_address" property="scenicAddress"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

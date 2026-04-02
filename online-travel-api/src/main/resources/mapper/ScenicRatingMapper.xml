@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.ScenicRatingMapper">
+
+    <insert id="save">
+        INSERT INTO scenic_rating (scenic_id, user_id, score, create_time)
+        VALUES (#{scenicId}, #{userId}, #{score}, #{createTime})
+    </insert>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT sr.*,
+               u.user_name,
+               u.user_avatar
+        FROM scenic_rating sr
+        LEFT JOIN user u ON sr.user_id = u.id
+        <where>
+            <if test="id != null">
+                AND sr.id = #{id}
+            </if>
+            <if test="scenicId != null">
+                AND sr.scenic_id = #{scenicId}
+            </if>
+            <if test="userId != null">
+                AND sr.user_id = #{userId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY sr.score
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM scenic_rating sr
+        <where>
+            <if test="id != null">
+                AND sr.id = #{id}
+            </if>
+            <if test="scenicId != null">
+                AND sr.scenic_id = #{scenicId}
+            </if>
+            <if test="userId != null">
+                AND sr.user_id = #{userId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.ScenicRatingVO">
+        <id column="id" property="id"/>
+        <result column="scenic_id" property="scenicId"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_avatar" property="userAvatar"/>
+        <result column="score" property="score"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>
